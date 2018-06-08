@@ -2,7 +2,7 @@
  * BMA280.h
  *
  *  Created on: May 25, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #ifndef SOURCE_BMA280_H_

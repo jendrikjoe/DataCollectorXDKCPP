@@ -2,7 +2,7 @@
  * BMM150.h
  *
  *  Created on: May 29, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #ifndef SOURCE_BMG160_H_

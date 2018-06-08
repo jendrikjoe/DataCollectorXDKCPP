@@ -2,7 +2,7 @@
  * SDCard.h
  *
  *  Created on: May 28, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #ifndef SOURCE_SDCARD_H_

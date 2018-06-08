@@ -2,7 +2,7 @@
  * DataWriter.h
  *
  *  Created on: May 29, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #ifndef SOURCE_DATAWRITER_H_

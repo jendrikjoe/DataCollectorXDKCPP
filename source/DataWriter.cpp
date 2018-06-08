@@ -2,7 +2,7 @@
  * DataWriter.cpp
  *
  *  Created on: May 29, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #include "DataWriter.h"

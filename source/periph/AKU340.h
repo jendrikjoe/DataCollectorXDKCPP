@@ -2,7 +2,7 @@
  * AKU340.h
  *
  *  Created on: May 30, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #ifndef SOURCE_PERIPH_AKU340_H_

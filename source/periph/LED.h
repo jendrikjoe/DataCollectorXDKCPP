@@ -2,7 +2,7 @@
  * LED.h
  *
  *  Created on: May 18, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #ifndef SOURCE_LED_H_

@@ -2,7 +2,7 @@
  * AKU340.cpp
  *
  *  Created on: May 30, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #include "AKU340.h"

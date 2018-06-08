@@ -2,7 +2,7 @@
  * BMM150.cpp
  *
  *  Created on: May 29, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #include "BMG160.h"

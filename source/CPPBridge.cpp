@@ -2,7 +2,7 @@
  * CPPBridge.cpp
  *
  *  Created on: May 18, 2018
- *      Author: root
+ *      Author: jendrik
  */
 #define BCDS_FEATURE_BSP_MIC_AKU340
 #include "CPPBridge.h"

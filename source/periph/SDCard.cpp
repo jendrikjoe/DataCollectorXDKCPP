@@ -2,7 +2,7 @@
  * SDCard.cpp
  *
  *  Created on: May 28, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #include "SDCard.h"

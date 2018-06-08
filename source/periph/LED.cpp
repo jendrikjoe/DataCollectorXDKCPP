@@ -2,7 +2,7 @@
  * LED.cpp
  *
  *  Created on: May 18, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #include "LED.h"

@@ -2,7 +2,7 @@
  * BMA280.cpp
  *
  *  Created on: May 25, 2018
- *      Author: root
+ *      Author: jendrik
  */
 
 #include "BMA280.h"
