@@ -13,6 +13,7 @@
 //#include "alloc.h"
 #include "periph/Interrupt.h"
 #include "periph/SDCard.h"
+#include "periph/WiFi.h"
 #include "DataWriter.h"
 
 extern "C" {
@@ -36,6 +37,7 @@ periph::InterruptHandler<periph::LED> *hand;
 periph::BMA280 *acc;
 periph::AKU340 *mic;
 periph::SDCard *sd;
+periph::WiFi *wifi;
 io::DataWriter *accWriter;
 io::DataWriter *micWriter;
 char accName[100];
@@ -48,7 +50,7 @@ void bridge(void * CmdProcessorHandle) {
 	printf("Interrupt build\r\n");
 	printf("Try Building SD Card\n");
 	sd = new periph::SDCard(&orange);
-
+	wifi = new periph::WiFi("SSID", "pw");
 	printf("Building Mac File\n");
 
     Retcode_T retval = WlanConnect_Init();
@@ -76,7 +78,7 @@ void bridge(void * CmdProcessorHandle) {
     TaskHandle_t sensorTaskHandle = NULL;
     if (xTaskCreate(readMic, (const char * const) pcTextForTask1,
                         configMINIMAL_STACK_SIZE, NULL, 2, &sensorTaskHandle) != pdTRUE) {
-        	printf("Could not creat task %s\n", pcTextForTask1);
+        	printf("Could not create task %s\n", pcTextForTask1);
         	periph::Interrupt::Fault();
         	assert(0);
         }
@@ -85,7 +87,7 @@ void bridge(void * CmdProcessorHandle) {
     TaskHandle_t sdTaskHandle = NULL;
     if (xTaskCreate(flushSD, (const char * const) pcTextForTask2,
                     configMINIMAL_STACK_SIZE, NULL, 1, &sdTaskHandle) != pdTRUE) {
-    	printf("Could not creat task %s\n", pcTextForTask2);
+    	printf("Could not create task %s\n", pcTextForTask2);
     	periph::Interrupt::Fault();
     	assert(0);
     }

@@ -54,6 +54,11 @@ void Interrupt::NewMicData() {
 	ISRVectorTable[AKU340_NEW_DATA]->ISR(NULL, 0);
 }
 
+retcode_t Interrupt::MQTTCallback(MqttSession_T* session, MqttEvent_t event,
+		const MqttEventData_t* eventData) {
+	ISRVectorTable[MQTT]->ISR(session, event, eventData);
+}
+
 void Interrupt::callISR(void* param, uint32_t data) {
 	ISRVectorTable[data]->ISR(param, data);
 }
