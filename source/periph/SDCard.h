@@ -7,12 +7,11 @@
 
 #ifndef SOURCE_SDCARD_H_
 #define SOURCE_SDCARD_H_
-
-#define BUFFERSIZE 5000
 #define NUMBEROFBUFFERS 2
 
 #include "Sensor.h"
 #include "LED.h"
+#include "Buffer.h"
 extern "C" {
 	#include "ff.h"
 	#include "stdio.h"
@@ -20,11 +19,6 @@ extern "C" {
 
 namespace periph {
 
-struct Buffer {
-	const char* name;
-	char data[BUFFERSIZE] = {0};
-	unsigned int length=0;
-};
 
 class SDCard {
 

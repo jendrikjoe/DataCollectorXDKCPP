@@ -43,7 +43,7 @@ periph::InterruptHandler<T>::InterruptHandler(T* owner, void (T::*fct)(void*, un
 		this->run = fct;
 		printf("Fck set\r\n");
 		Interrupt::Register(interrupt, this);
-		printf("Ran Registered\r\n");
+		printf("Ran Register\r\n");
 }
 
 template<class T>
@@ -54,7 +54,7 @@ periph::InterruptHandler<T>::InterruptHandler(T* owner, retcode_t (T::*fct)(Mqtt
 		this->runMQTT = fct;
 		printf("Fck set\r\n");
 		Interrupt::Register(interrupt, this);
-		printf("Ran Registered\r\n");
+		printf("Ran Register\r\n");
 }
 
 template<class T>

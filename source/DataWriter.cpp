@@ -11,14 +11,14 @@ namespace io {
 
 DataWriter::DataWriter(periph::Sensor *sensor, periph::SDCard *sd,
 		periph::Interrupt::INTERRUPT interrupt, bool writeTime) :
-		sensor(sensor), sd(sd), writeTime(writeTime), useWifi(false) {
+		sensor(sensor), sd(sd), writeTime(writeTime), useWifi(false), wifi(0) {
 	hand = new periph::InterruptHandler<DataWriter>(this, &DataWriter::newSensorInterrupt,
 			interrupt);
 }
 
 DataWriter::DataWriter(periph::Sensor *sensor, periph::WiFi *wifi,
 		periph::Interrupt::INTERRUPT interrupt, bool writeTime) :
-		sensor(sensor), wifi(wifi), writeTime(writeTime), useWifi(true) {
+		sensor(sensor), wifi(wifi), writeTime(writeTime), useWifi(true), sd(0) {
 	hand = new periph::InterruptHandler<DataWriter>(this, &DataWriter::newSensorInterrupt,
 			interrupt);
 }
@@ -38,27 +38,14 @@ void DataWriter::newSensorInterrupt(void*, unsigned long int) {
 			writerPoint += sprintf(buffer + writerPoint, "%ld", values.values[i]);
 		else
 			writerPoint += sprintf(buffer + writerPoint, ",%ld", values.values[i]);
-		writerPoint += sprintf(buffer + writerPoint, "\n");
 	}
 	if (!useWifi){
+		writerPoint += sprintf(buffer + writerPoint, "\n");
 		sd->fillBuffer(sensor->getSensorType(), buffer);
 	} else {
-		char topic[50] = "";
-		switch (sensor->getSensorType()) {
-			case periph::Sensor::ACC:
-				sprintf(topic, "/acc");
-				break;
-			case periph::Sensor::GYRO:
-				sprintf(topic, "/gyro");
-				break;
-			case periph::Sensor::MIC:
-				sprintf(topic, "/mic");
-				break;
-			default:
-				return;
-				break;
-		}
-		wifi->publish(topic, buffer);
+		writerPoint += sprintf(buffer + writerPoint, ";");
+//		wifi->publish(sensor->getSensorType(), buffer);
+		wifi->fillBuffer(sensor->getSensorType(), buffer);
 	}
 }
 

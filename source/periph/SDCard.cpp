@@ -144,9 +144,9 @@ void SDCard::writeToFile(const char* filename, const char* str) {
 	fileSystemResult = f_lseek(&fileObject, f_size(&fileObject));
 	if ((fileSystemResult != FR_OK)) printf("Could not find end of file.\n");
 	fileSize = strlen(str);
-	printf("Plan to write %d bytes\n", fileSize);
+	//printf("Plan to write %d bytes\n", fileSize);
 	int bytesWritten = f_printf(&fileObject, str);
-	printf("Wrote %d bytes, len: %u\n", bytesWritten, fileSize);
+	//printf("Wrote %d bytes, len: %u\n", bytesWritten, fileSize);
 	if ((fileSystemResult != FR_OK))
 		printf(" Error: Cannot write to file %s \n\r", filename);
 	fileSystemResult = f_sync(&fileObject);
@@ -163,7 +163,7 @@ void SDCard::flushBuffer() {
 		// Temporary buffer for write file
 		uint16_t fileSize;
 		fileSize = outBuffer->length;
-		printf("File Size %d bytes\n", fileSize);
+		//printf("File Size %d bytes\n", fileSize);
 		writeToFile(filenames[outBufferType], outBuffer->data);
 		for(int i=0; i<outBuffer->length; i++) outBuffer->data[i] = 0;
 		outBuffer->length = 0;

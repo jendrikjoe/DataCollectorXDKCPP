@@ -13,7 +13,7 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-	//#include "Serval_Mqtt.h"
+	#include "Serval_Mqtt.h"
 	#include "Serval_Types.h"
 #ifdef  __cplusplus
 }
