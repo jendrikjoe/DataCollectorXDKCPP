@@ -7,6 +7,7 @@ BCDS_PLATFORM_PATH := $(MAKE_FILE_ROOT)/../Platform
 BCDS_LIBRARIES_PATH := $(MAKE_FILE_ROOT)/../Libraries
 BCDS_XDK_TOOLS_PATH := $(MAKE_FILE_ROOT)/../Tools
 include $(dir $(BCDS_COMMON_MAKEFILE))common_settings.mk
+include common_feature.mk
 
 #XDK application specific Paths 
 BCDS_XDK_COMMON_PATH =$(MAKE_FILE_ROOT)/../Common
@@ -16,10 +17,11 @@ BCDS_PACKAGE_ID = 153
 BCDS_XDK_DEBUG_DIR = debug
 BCDS_XDK_RELEASE_DIR = release
 BCDS_XDK_INCLUDE_DIR = $(BCDS_XDK_COMMON_PATH)/include
+BCDS_XDK_SOURCE_DIR = $(BCDS_XDK_COMMON_PATH)/source
 BCDS_XDK_LEGACY_INCLUDE_DIR = $(BCDS_XDK_COMMON_PATH)/legacy/include
+BCDS_XDK_CERTS_DIR = $(BCDS_XDK_COMMON_PATH)/certs
 BCDS_XDK_OBJECT_DIR = objects
 BCDS_XDK_CPP_OBJECT_DIR = objectscpp
-BCDS_XDK_LINT_DIR = lint
 BCDS_XDK_APP_PATH= $(BCDS_APP_DIR)
 BCDS_APP_NAME_WITH_HEADER = $(BCDS_APP_NAME)_with_header
 
@@ -40,23 +42,23 @@ PRODUCT_VARIANT =0001
 FIRMWARE_VERSION = $(subst 0x,,00$(MAJOR_SW_NO)$(MINOR_SW_NO)$(PATCH_SW_NO))
 CREATE_CONTAINER_SCRIPT = $(BCDS_FOTA_TOOL_PATH)/create_fota_container.py
 
-#Path where the LINT config files are present(compiler and environment configurations)
-BCDS_LINT_CONFIG_PATH =  $(BCDS_TOOLS_PATH)/PCLint/v9.00-0.2.3/config
-BCDS_LINT_CONFIG_FILE := $(BCDS_LINT_CONFIG_PATH)/bcds.lnt
-LINT_EXE = $(BCDS_TOOLS_PATH)/PCLint/v9.00-0.2.3/exe/lint-nt.launch
+#Flag to enable temporary debug logging in the application. Recommended to be enabled for testing purpose only.
+DEBUG_LOGGING = 0
 
 # These serval macros should be above Libraies.mk
 # This variable should fully specify the build configuration of the Serval 
 # Stack library with regards the enabled and disabled features of TLS to use DTLS instead of TLS. 
-SERVAL_ENABLE_TLS_CLIENT ?=0
-SERVAL_ENABLE_TLS_ECC ?=0
-SERVAL_ENABLE_TLS_PSK ?=1
-SERVAL_ENABLE_DTLS_PSK ?=1
-SERVAL_MAX_NUM_MESSAGES ?=16
+SERVAL_ENABLE_TLS_CLIENT?=0
+SERVAL_ENABLE_TLS_ECC?=0
+SERVAL_ENABLE_TLS_PSK?=0
+SERVAL_ENABLE_DTLS?=0
+SERVAL_ENABLE_DTLS_PSK?=0
+SERVAL_MAX_NUM_MESSAGES?=16
 SERVAL_MAX_SIZE_APP_PACKET ?=600
 SERVAL_ENABLE_TLS ?=0
 SERVAL_ENABLE_DTLS_ECC ?=0
-EscTls_CIPHER_SUITE ?=TLS_PSK_WITH_AES_128_CCM_8
+SERVAL_TLS_MBEDTLS ?= 0
+XDK_MBEDTLS_PARSE_INFO ?= 0
 
 # This variable should fully specify the build configuration of the Serval 
 # Stack library with regards the enabled and disabled features as well as 
@@ -79,15 +81,15 @@ BCDS_SERVALSTACK_MACROS += \
 	-D SERVAL_ENABLE_TLS_SERVER=0\
 	-D SERVAL_ENABLE_TLS_ECC=$(SERVAL_ENABLE_TLS_ECC)\
 	-D SERVAL_ENABLE_TLS_PSK=$(SERVAL_ENABLE_TLS_PSK)\
-	-D SERVAL_ENABLE_DTLS=1\
-	-D SERVAL_ENABLE_DTLS_CLIENT=1\
-	-D SERVAL_ENABLE_DTLS_SERVER=1\
+	-D SERVAL_ENABLE_DTLS=$(SERVAL_ENABLE_DTLS)\
+	-D SERVAL_ENABLE_DTLS_CLIENT=$(SERVAL_ENABLE_DTLS)\
+	-D SERVAL_ENABLE_DTLS_SERVER=$(SERVAL_ENABLE_DTLS)\
 	-D SERVAL_ENABLE_DTLS_PSK=$(SERVAL_ENABLE_DTLS_PSK)\
 	-D SERVAL_ENABLE_HTTP_AUTH=1\
 	-D SERVAL_ENABLE_HTTP_AUTH_DIGEST=1\
 	-D SERVAL_ENABLE_DUTY_CYCLING=1\
 	-D SERVAL_ENABLE_APP_DATA_ACCESS=0\
-	-D SERVAL_ENABLE_COAP_COMBINED_SERVER_AND_CLIENT=1\
+	-D SERVAL_ENABLE_COAP_COMBINED_SERVER_AND_CLIENT=$(SERVAL_ENABLE_DTLS)\
 	-D SERVAL_ENABLE_COAP_OBSERVE=1\
 	-D SERVAL_ENABLE_LWM2M=1\
 	-D SERVAL_ENABLE_XTCP=1\
@@ -101,7 +103,6 @@ BCDS_SERVALSTACK_MACROS += \
 	-D SERVAL_MAX_SECURE_CONNECTIONS=5\
 	-D SERVAL_SECURE_SERVER_CONNECTION_TIMEOUT=300000\
 	-D SERVAL_DOWNGRADE_TLS=1\
-	-D SERVAL_TLS_CYASSL=0 \
 	-D SERVAL_ENABLE_DTLS_ECC=$(SERVAL_ENABLE_DTLS_ECC) \
 	-D SERVAL_ENABLE_DTLS_RSA=0 \
 	-D COAP_MSG_MAX_LEN=224 \
@@ -110,13 +111,12 @@ BCDS_SERVALSTACK_MACROS += \
 	-D SERVAL_LWM2M_SECURITY_INFO_MAX_LENGTH=65 \
 	-D LWM2M_IP_ADDRESS_MAX_LENGTH=65 \
 	-D SERVAL_HTTP_MAX_LENGTH_URL=256 \
-	-D SERVAL_TLS_CYCURTLS=1 \
+	-D SERVAL_TLS_MBEDTLS=$(SERVAL_TLS_MBEDTLS) \
 	-D LWM2M_MAX_LENGTH_DEVICE_NAME=32 \
 	-D SERVAL_ENABLE_DTLS_SESSION_ID=0 \
 	-D LWM2M_DISABLE_CLIENT_QUEUEMODE=1 \
 	-D PAL_MAX_NUM_ADDITIONAL_COMM_BUFFERS=6 \
 	-D SERVAL_ENABLE_DTLS_HEADER_LOGGING=0 \
-	-D CYCURTLS_HAVE_GET_CURRENT_TASKNAME=0 \
 	-D SERVAL_DTLS_FLIGHT_MAX_RETRIES=4 \
 	-D SERVAL_EXPERIMENTAL_DTLS_MONITOR_EXTERN=0 \
 	-D SERVAL_POLICY_STACK_CALLS_TLS_API=1 \
@@ -127,20 +127,10 @@ BCDS_SERVALSTACK_MACROS += \
 	-D COAP_OVERLOAD_QUEUE_SIZE=15 \
 	-D SERVAL_ENABLE_SNTP_CLIENT=1 \
 	-D SERVAL_ENABLE_HTTP=1 \
-	-D BCDS_SERVAL_COMMBUFF_SEND_BUFFER_MAX_LEN=1000
-
-BCDS_CYCURTLS_MACROS = \
-	-DEscTls_PSK_IDENTITY_LENGTH_MAX=65 \
-	-DEscTls_MAXIMUM_FRAGMENT_LENGTH=256 \
-	-D EscTls_CIPHER_SUITE=$(EscTls_CIPHER_SUITE) \
-	-D EscHashDrbg_SHA_TYPE=256 \
-	-D EscDtls_MAX_COOKIE_SIZE=64 \
-	-D EscX509_HASH_SHA1_ENABLED=1 \
-	-D EscX509_HASH_SHA512_ENABLED=1 \
-	-D EscX509_ALGORITHM_RSA_PKCS1V15_ENABLED=1 \
-	-D EscX509_PARSE_INFO=1 \
-	-D EscTls_CHECK_CERT_EXPIRATION=0 \
-	-D EscRsa_KEY_BITS_MAX=2048U
+	-D BCDS_SERVAL_COMMBUFF_SEND_BUFFER_MAX_LEN=1000 \
+	-D SERVAL_XML_PARSER=1 \
+	-D XDK_MBEDTLS_PARSE_INFO=$(XDK_MBEDTLS_PARSE_INFO)
+	
 
 include Libraries.mk
 
@@ -166,24 +156,24 @@ BCDS_XDK_APP_DEBUG_OBJECT_DIR = $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_DEBUG_DIR)/$(BCD
 BCDS_XDK_APP_DEBUG_CPP_OBJECT_DIR = $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_DEBUG_DIR)/$(BCDS_XDK_CPP_OBJECT_DIR)
 BCDS_XDK_APP_DEBUG_DIR = $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_DEBUG_DIR)
 
-
 #Path of the XDK Release object files
 BCDS_XDK_APP_RELEASE_OBJECT_DIR =  $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_RELEASE_DIR)/$(BCDS_XDK_OBJECT_DIR)
-BCDS_XDK_APP_RELEASE_OBJECT_DIR =  $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_RELEASE_DIR)/$(BCDS_XDK_CPP_OBJECT_DIR)
+BCDS_XDK_APP_RELEASE_CPP_OBJECT_DIR =  $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_RELEASE_DIR)/$(BCDS_XDK_CPP_OBJECT_DIR)
 BCDS_XDK_APP_RELEASE_DIR = $(BCDS_XDK_APP_PATH)/$(BCDS_XDK_RELEASE_DIR)
 
-export BCDS_CFLAGS_COMMON += -std=c99 -Wall -Wextra -Wstrict-prototypes -D$(BCDS_DEVICE_ID) -D BCDS_TARGET_EFM32 \
+export BCDS_CFLAGS_COMMON += -std=c99 -Wall -Wextra -Wstrict-prototypes -D $(BCDS_DEVICE_ID) -D BCDS_TARGET_EFM32 \
 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections \
-$(BCDS_SERVALSTACK_MACROS) $(BCDS_CYCURTLS_MACROS) -D$(BCDS_SYSTEM_STARTUP_METHOD) \
--DENABLE_DMA -DARM_MATH_CM3 -DXDK_FOTA_ENABLED_BOOTLOADER=$(XDK_FOTA_ENABLED_BOOTLOADER) \
--DBCDS_SERVALPAL_WIFI=1
+$(BCDS_SERVALSTACK_MACROS) -D $(BCDS_SYSTEM_STARTUP_METHOD) $(XDK_CFLAGS_COMMON) \
+-D ENABLE_DMA -D ARM_MATH_CM3 -D XDK_FOTA_ENABLED_BOOTLOADER=$(XDK_FOTA_ENABLED_BOOTLOADER) \
+-D BCDS_SERVALPAL_WIFI=$(BCDS_SERVALPAL_WIFI) -D BCDS_EMLIB_INCLUDE_USB=$(BCDS_EMLIB_INCLUDE_USB) \
+-D BCDS_FREERTOS_INCLUDE_AWS=$(BCDS_FREERTOS_INCLUDE_AWS) -D DEBUG_LOGGING=$(DEBUG_LOGGING) -D mqttDO_NOT_USE_CUSTOM_CONFIG -D MBEDTLS_CONFIG_FILE='<MbedtlsConfig.h>' \
 
-export BCDS_CPPFLAGS_DEBUG_COMMON += -std=c++11 -Wall -Wextra -D$(BCDS_DEVICE_ID) -D BCDS_TARGET_EFM32 \
+export BCDS_CPPFLAGS_COMMON += -std=c++11 -Wall -Wextra -D$(BCDS_DEVICE_ID) -D BCDS_TARGET_EFM32 \
 -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections \
-$(BCDS_SERVALSTACK_MACROS) $(BCDS_CYCURTLS_MACROS) -D$(BCDS_SYSTEM_STARTUP_METHOD) \
--DENABLE_DMA -DARM_MATH_CM3 -DXDK_FOTA_ENABLED_BOOTLOADER=$(XDK_FOTA_ENABLED_BOOTLOADER) \
--DBCDS_SERVALPAL_WIFI=1
-
+$(BCDS_SERVALSTACK_MACROS) -D $(BCDS_SYSTEM_STARTUP_METHOD) $(XDK_CFLAGS_COMMON) \
+-D ENABLE_DMA -D ARM_MATH_CM3 -D XDK_FOTA_ENABLED_BOOTLOADER=$(XDK_FOTA_ENABLED_BOOTLOADER) \
+-D BCDS_SERVALPAL_WIFI=$(BCDS_SERVALPAL_WIFI) -D BCDS_EMLIB_INCLUDE_USB=$(BCDS_EMLIB_INCLUDE_USB) \
+-D BCDS_FREERTOS_INCLUDE_AWS=$(BCDS_FREERTOS_INCLUDE_AWS) -D DEBUG_LOGGING=$(DEBUG_LOGGING) -D mqttDO_NOT_USE_CUSTOM_CONFIG -D MBEDTLS_CONFIG_FILE='<MbedtlsConfig.h>' \
 
 LDFLAGS_DEBUG = -Xlinker -Map=$(BCDS_XDK_APP_DEBUG_DIR)/$(BCDS_APP_NAME).map \
 -mcpu=cortex-m3 -mthumb -T $(BCDS_XDK_LD_FILE) -Wl,--gc-sections
@@ -192,9 +182,14 @@ ASMFLAGS = -x assembler-with-cpp -Wall -Wextra -mcpu=cortex-m3 -mthumb
 
 export BCDS_CFLAGS_DEBUG_COMMON ?= $(BCDS_CFLAGS_COMMON) -O0 -g
 export BCDS_CFLAGS_DEBUG = $(BCDS_CFLAGS_DEBUG_COMMON)
+export BCDS_CPPFLAGS_DEBUG_COMMON ?= $(BCDS_CPPFLAGS_COMMON)
+export BCDS_CPPFLAGS_DEBUG = $(BCDS_CPPFLAGS_DEBUG_COMMON)
+export BCDS_CFLAGS_DEBUG_WITHOUT_ASSERT = $(BCDS_CFLAGS_DEBUG_COMMON) -DNDEBUG
 
 export BCDS_CFLAGS_RELEASE_COMMON ?= $(BCDS_CFLAGS_COMMON) -O0 -DNDEBUG
 export BCDS_CFLAGS_RELEASE = $(BCDS_CFLAGS_RELEASE_COMMON)
+export BCDS_CPPFLAGS_RELEASE_COMMON ?= $(BCDS_CPPFLAGS_COMMON)
+export BCDS_CPPFLAGS_RELEASE = $(BCDS_CPPFLAGS_RELEASE_COMMON)
 
 LDFLAGS_RELEASE = -Xlinker -Map=$(BCDS_XDK_APP_RELEASE_DIR)/$(BCDS_APP_NAME).map \
 -mcpu=cortex-m3 -mthumb -T $(BCDS_XDK_LD_FILE) -Wl,--gc-sections
@@ -207,16 +202,19 @@ BCDS_DEBUG_LIBS_GROUP = -Wl,--start-group $(BCDS_LIBS_DEBUG) $(BCDS_THIRD_PARTY_
 
 BCDS_RELEASE_LIBS_GROUP = -Wl,--start-group $(BCDS_LIBS_RELEASE) $(BCDS_THIRD_PARTY_LIBS) -Wl,--end-group
 
-ifneq ($(XDK_FOTA_ENABLED_BOOTLOADER),1)
-XDK_APP_ADDRESS = 0x00010000 # @see efm32gg.ld , This is the flash start address if EA commander tool used for flashing 
-BCDS_XDK_LD_FILE = efm32gg.ld
-$(info old_bootloader)
-else
+ifneq ($(XDK_FOTA_ENABLED_BOOTLOADER),0)
 XDK_APP_ADDRESS = 0x00020000 # @see efm32gg_new.ld, This is the flash start address if EA commander tool used for flashing 
 BCDS_XDK_LD_FILE = efm32gg_new.ld
 $(info new_bootloader)
+else
+XDK_APP_ADDRESS = 0x00010000 # @see efm32gg.ld , This is the flash start address if EA commander tool used for flashing 
+BCDS_XDK_LD_FILE = efm32gg.ld
+$(info old_bootloader)
 endif
 
+# Define the path for connectivity certificates (both server and the device).
+# By default initialed to an empty certificate. Application is expected to overwrite the same, if needed.
+XDK_APP_CERTIFICATE_NAME ?= Custom
 
 # Define the path for include directories.
 BCDS_XDK_INCLUDES += \
@@ -227,6 +225,7 @@ BCDS_XDK_INCLUDES += \
                   -I$(BCDS_XDK_INCLUDE_DIR)/Utility \
                   -I$(BCDS_XDK_LEGACY_INCLUDE_DIR) \
                   -I$(BCDS_XDK_LEGACY_INCLUDE_DIR)/ServalPAL_WiFi \
+                  -I$(BCDS_XDK_LEGACY_INCLUDE_DIR)/BLE \
                   -I$(BCDS_XDK_CERTS_DIR)/XDKDummy \
                   -I$(BCDS_XDK_CERTS_DIR)/$(XDK_APP_CERTIFICATE_NAME) \
                   -I$(BCDS_XDK_CONFIG_PATH) \
@@ -234,7 +233,9 @@ BCDS_XDK_INCLUDES += \
                   -I$(BCDS_XDK_CONFIG_PATH)/FOTA \
                   -I$(BCDS_XDK_CONFIG_PATH)/Utils \
 				  -I$(BCDS_XDK_CONFIG_PATH)/ServalPal \
-       		      -I$(BCDS_BLE_PATH)/include \
+				  -I$(BCDS_XDK_CONFIG_PATH)/AmazonFreeRTOS/FreeRTOS \
+				  -I$(BCDS_XDK_CONFIG_PATH)/AmazonFreeRTOS \
+	   		      -I$(BCDS_BLE_PATH)/include \
        		      -I$(BCDS_BLE_PATH)/include/services \
                   -I$(BCDS_ESSENTIALS_PATH)/include \
                   -I$(BCDS_DRIVERS_PATH)/include \
@@ -254,19 +255,19 @@ BCDS_XDK_INCLUDES += \
 				  -I$(BCDS_ESSENTIALS_PATH)/include/mcu \
        			  -I$(BCDS_LORA_DRIVERS_PATH)/include \
 				  -I$(BCDS_XDK_COMMON_PATH)/source/Adc \
-				  -I$(BCDS_XDK_INCLUDE_DIR)/Connectivity/LWM2M
-				  
-				  
+				  -I$(BCDS_XDK_COMMON_PATH)/source/Private/ServalStack/src/TLS_MbedTLS \
+				  -I$(BCDS_XDK_INCLUDE_DIR)/Connectivity/LWM2M \
+				  -I$(BCDS_XDK_CONFIG_PATH)/MbedTLS \
+
 # By using -isystem, headers found in that direcwtory will be considered as system headers, because of that 
-# all warnings, other than those generated by #warning, are suppressed.
+# all warnings, other than those generated by #warning, are suppressed.	
 BCDS_XDK_EXT_INCLUDES += \
 				  -isystem $(BCDS_SERVALSTACK_LIB_PATH)/include \
 				  -isystem $(BCDS_SERVALSTACK_LIB_PATH)/3rd-party/ServalStack/api \
 				  -isystem $(BCDS_SERVALSTACK_LIB_PATH)/3rd-party/ServalStack/pal \
-				  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/FreeRTOS/Source/portable/GCC/ARM_CM3 \
-                  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/FreeRTOS/Source/include \
-                  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/include \
-                  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/include/private \
+				  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/include \
+				  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/include/private \
+				  -isystem $(BCDS_FREERTOS_PATH)/3rd-party/FreeRTOS/portable/GCC/ARM_CM3 \
                   -isystem $(BCDS_EMLIB_PATH)/3rd-party/EMLib/emlib/inc \
                   -isystem $(BCDS_EMLIB_PATH)/3rd-party/EMLib/Device/SiliconLabs/EFM32GG/Include \
                   -isystem $(BCDS_EMLIB_PATH)/3rd-party/EMLib/CMSIS/Include \
@@ -283,8 +284,6 @@ BCDS_XDK_EXT_INCLUDES += \
 				  -isystem $(BCDS_BSX_LIB_PATH)/BSX4/Source/device/API/BMG160_API \
 				  -isystem $(BCDS_BSX_LIB_PATH)/BSX4/Source/device/API/BMA2x2_API \
 				  -isystem $(BCDS_GRIDEYE_LIB_PATH)/3rd-party/GridEye/Source \
-				  -isystem $(BCDS_ESCRYPTLIB_PATH)/3rd-party/CycurTLS/src/cycurlib/lib/inc \
-				  -isystem $(BCDS_ESCRYPTLIB_PATH)/3rd-party/CycurTLS/src/cycurtls/inc \
 				  -isystem $(BCDS_BLE_SERVICE_PATH)/BLESW_AlertNotification/Interfaces \
 				  -isystem $(BCDS_BLE_SERVICE_PATH)/BLESW_AppleNotificationCenter/Interfaces \
 				  -isystem $(BCDS_BLE_SERVICE_PATH)/BLESW_BloodPressure/Interfaces \
@@ -302,14 +301,25 @@ BCDS_XDK_EXT_INCLUDES += \
 				  -isystem $(BCDS_BLE_SERVICE_PATH)/BLESW_RunningSpeedAndCadence/Interfaces \
 				  -isystem $(BCDS_BLE_SERVICE_PATH)/BLESW_Time/Interfaces \
 				  -isystem $(BCDS_BLE_SERVICE_PATH)/BLESW_WeightScale/Interfaces \
+				  -isystem $(BCDS_SERVALSTACK_LIB_PATH)/3rd-party/ServalStack/src/inc \
+				  -isystem $(BCDS_MBED_LIB_PATH)/3rd-party/mbedtls/include \
+				  -isystem $(BCDS_MBED_LIB_PATH)/3rd-party/mbedtls/include/mbedtls \
 
-# list of other Source files required for XDK application
-BCDS_XDK_PLATFORM_SOURCE_FILES += \
+BCDS_XDK_PLATFORM_ALL_SOURCE_FILES += \
 	$(wildcard $(BCDS_XDK_COMMON_PATH)/source/*.c) \
 	$(wildcard $(BCDS_XDK_COMMON_PATH)/legacy/source/*.c) \
 	$(wildcard $(BCDS_XDK_COMMON_PATH)/source/**/*.c) \
 	$(wildcard $(BCDS_XDK_COMMON_PATH)/source/**/**/*.c) \
-	$(wildcard $(BCDS_XDK_COMMON_PATH)/source/**/**/**/*.c)
+	$(wildcard $(BCDS_XDK_COMMON_PATH)/source/**/**/**/*.c) \
+	$(wildcard $(BCDS_XDK_COMMON_PATH)/source/**/**/**/**/*.c)
+
+# list of other Source files required for XDK application
+ifneq ($(XDK_CONNECTIVITY_LWM2M),1)
+BCDS_XDK_SKIP_FILES_LIST := $(wildcard $(BCDS_XDK_COMMON_PATH)/source/**/LWM2M/*.c)
+endif
+
+BCDS_XDK_PLATFORM_SOURCE_FILES := \
+	$(filter-out $(BCDS_XDK_SKIP_FILES_LIST), $(BCDS_XDK_PLATFORM_ALL_SOURCE_FILES))
 
 ifeq ($(BCDS_EMLIB_INCLUDE_USB),1)		
 BCDS_XDK_EXT_INCLUDES += \
@@ -325,6 +335,7 @@ BCDS_XDK_APP_STARTUP_FILES = \
 	
 # Debug Object files list for building XDK application
 BCDS_XDK_PLATFORM_COMMOM_C_OBJECT_FILES = $(BCDS_XDK_PLATFORM_SOURCE_FILES:.c=.o)
+BCDS_XDK_PLATFORM_COMMOM_C_OBJECT_FILES += $(BCDS_XDK_LIB_SOURCE_FILES:.c=.o)
 BCDS_XDK_PLATFORM_C_OBJECT_FILES = $(subst $(BCDS_XDK_COMMON_PATH)/,,$(BCDS_XDK_PLATFORM_COMMOM_C_OBJECT_FILES))
 BCDS_XDK_APP_S_OBJECT_FILES = $(BCDS_XDK_APP_STARTUP_FILES:.S=.o)
 BCDS_XDK_APP_C_OBJECT_FILES = $(patsubst $(BCDS_APP_SOURCE_DIR)/%.c, %.o, $(BCDS_XDK_APP_SOURCE_FILES))
@@ -337,6 +348,7 @@ BCDS_XDK_APP_OBJECT_FILES_RELEASE = $(addprefix $(BCDS_XDK_APP_RELEASE_OBJECT_DI
 # Dependency File List for building XDK application files 
 BCDS_XDK_APP_DEPENDENCY_RELEASE_FILES = $(addprefix $(BCDS_XDK_APP_RELEASE_OBJECT_DIR)/, $(BCDS_XDK_APP_OBJECT_FILES:.o=.d))
 BCDS_XDK_APP_DEPENDENCY_DEBUG_FILES = $(addprefix $(BCDS_XDK_APP_DEBUG_OBJECT_DIR)/, $(BCDS_XDK_APP_OBJECT_FILES:.o=.d))
+
 
 	
 # Debug CPP Object files list for building XDK application
@@ -352,22 +364,6 @@ BCDS_XDK_APP_CPP_OBJECT_FILES_RELEASE = $(addprefix $(BCDS_XDK_APP_RELEASE_CPP_O
 BCDS_XDK_APP_CPP_DEPENDENCY_RELEASE_FILES = $(addprefix $(BCDS_XDK_APP_RELEASE_CPP_OBJECT_DIR)/, $(BCDS_XDK_APP_CPP_OBJECT_FILES:.o=.d))
 BCDS_XDK_APP_CPP_DEPENDENCY_DEBUG_FILES = $(addprefix $(BCDS_XDK_APP_DEBUG_CPP_OBJECT_DIR)/, $(BCDS_XDK_APP_CPP_OBJECT_FILES:.o=.d))
 
-# Lint File List for building XDK application files 
-
-# Lint flags
-LINT_CONFIG = \
-	+d$(BCDS_DEVICE_TYPE) +dASSERT_FILENAME $(BCDS_SERVAL_CONFIG_LINT) $(BCDS_CYCURTLS_CONFIG_LINT) \
-	+dBCDS_TARGET_PLATFORM=efm32 +d$(BCDS_DEVICE_ID) +d$(BCDS_HW_VERSION) -e506 -e464 -e438\
-	$(BCDS_EXTERNAL_EXCLUDES_LINT) $(BCDS_EXTERNAL_INCLUDES_LINT) $(BCDS_LINT_CONFIG) \
-	$(BCDS_XDK_INCLUDES_LINT) $(BCDS_LINT_CONFIG_FILE) +dDBG_ASSERT_FILENAME \
-	+dBCDS_SERVALPAL_WIFI=1 +dXDK_FOTA_ENABLED_BOOTLOADER=1 +dBCDS_EMLIB_INCLUDE_USB=$(BCDS_EMLIB_INCLUDE_USB)
-	
-
-BCDS_XDK_APP_LINT_PATH = $(BCDS_XDK_APP_DEBUG_DIR)/$(BCDS_XDK_LINT_DIR)
-BCDS_XDK_APP_LINT_FILES = $(patsubst $(BCDS_APP_SOURCE_DIR)/%.c, %.lob, $(BCDS_XDK_APP_SOURCE_FILES))
-BCDS_XDK_LINT_FILES = $(addprefix $(BCDS_XDK_APP_LINT_PATH)/, $(BCDS_XDK_APP_LINT_FILES))
-
-
 #Create debug binary
 .PHONY: debug 
 debug: $(BCDS_XDK_APP_DEBUG_DIR)/$(BCDS_APP_NAME).bin
@@ -382,7 +378,7 @@ release: $(BCDS_XDK_APP_RELEASE_DIR)/$(BCDS_APP_NAME).bin
 
 clean: clean_libraries
 	@echo "Cleaning project in app.mk"
-	$(RMDIRS) $(BCDS_XDK_APP_DEBUG_DIR) $(BCDS_XDK_APP_RELEASE_DIR)	
+	$(RMDIRS) $(BCDS_XDK_APP_DEBUG_DIR) $(BCDS_XDK_APP_RELEASE_DIR)
 
 #Compile, assemble and link for debug target
 #Compile the sources from plaform or library
@@ -397,9 +393,9 @@ $(BCDS_XDK_APP_DEBUG_CPP_OBJECT_DIR)/%.o: $(BCDS_APP_SOURCE_DIR)/%.cpp $(BCDS_AP
 	@echo $(CPLUS) $(DEPEDENCY_FLAGS) $(BCDS_CPPFLAGS_DEBUG_COMMON) $(BCDS_XDK_INCLUDES) $(BCDS_XDK_EXT_INCLUDES) -DBCDS_PACKAGE_ID=$(BCDS_PACKAGE_ID) -c $< -o $@
 	@echo "Building file $<"
 	@$(CPLUS) $(DEPEDENCY_FLAGS) $(BCDS_CPPFLAGS_DEBUG_COMMON) $(BCDS_XDK_INCLUDES) -I$(BCDS_APP_SOURCE_DIR) $(BCDS_XDK_EXT_INCLUDES) -DBCDS_PACKAGE_ID=$(BCDS_PACKAGE_ID) -c $< -o $@
-
+	
 #Compile the sources from application
-$(BCDS_XDK_APP_DEBUG_OBJECT_DIR)/%.o: $(BCDS_APP_SOURCE_DIR)/%.c
+$(BCDS_XDK_APP_DEBUG_OBJECT_DIR)/%.o: $(BCDS_APP_SOURCE_DIR)/%.c 
 	@mkdir -p $(@D)
 	@echo $(BCDS_XDK_APP_PATH)
 	@echo "Building file $<"
@@ -460,22 +456,6 @@ flash_debug_bin: $(BCDS_XDK_APP_DEBUG_DIR)/$(BCDS_APP_NAME).bin
 flash_release_bin: $(BCDS_XDK_APP_RELEASE_DIR)/$(BCDS_APP_NAME).bin
 	@$(FLASH_TOOL_PATH) --address $(XDK_APP_ADDRESS) -v -f $< -r
 	@echo "Flashing is completed successfully"
-
-.PHONY: lint		   
-lint: $(BCDS_XDK_LINT_FILES)
-	@echo "Lint End"
-
-$(BCDS_XDK_APP_LINT_PATH)/%.lob:  $(BCDS_APP_SOURCE_DIR)/%.c
-	@echo "===================================="
-	@mkdir -p $(@D)
-	@echo $@
-	@$(LINT_EXE) $(LINT_CONFIG) $< -oo[$@]
-	@echo "===================================="
-
-.PHONY: cleanlint
-cleanlint:
-	@echo "Cleaning lint output files"
-	@rm -rf $(BCDS_XDK_APP_LINT_PATH)
 	
 cdt:
 	@echo "cdt"
@@ -483,14 +463,3 @@ cdt:
 	$(CC) $(BCDS_CFLAGS_DEBUG_COMMON) $(patsubst %,-I%, $(abspath $(patsubst -I%,%, $(BCDS_XDK_INCLUDES) $(BCDS_XDK_EXT_INCLUDES))))  -E -P -v -dD -c ${CDT_INPUT_FILE}
 		
 .PHONY: cdt
-	
-#-------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------
-
-BCDS_SERVAL_CONFIG_LINT := $(subst -D , +d,$(BCDS_SERVALSTACK_MACROS))
-BCDS_CYCURTLS_CONFIG_LINT := $(subst -D , +d,$(BCDS_CYCURTLS_MACROS))
-BCDS_EXTERNAL_EXCLUDES_LINT := $(foreach DIR, $(subst -isystem ,,$(BCDS_XDK_EXT_INCLUDES)), +libdir\($(DIR)\))
-BCDS_EXTERNAL_INCLUDES_LINT := $(subst -isystem ,-i,$(BCDS_XDK_EXT_INCLUDES))
-BCDS_XDK_INCLUDES_LINT := $(subst -I,-i,$(BCDS_XDK_INCLUDES))
-BCDS_LINT_CONFIG = -i$(BCDS_LINT_CONFIG_PATH)
-#-------------------------------------------------------------------------------------------------	

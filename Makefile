@@ -15,8 +15,29 @@ export BCDS_APP_SOURCE_DIR = $(BCDS_APP_DIR)/source
 #and if any addition flags required then add that flags only in the below macro 
 #export BCDS_CFLAGS_COMMON = 
 
+#Below settings are done for optimized build.Unused common code is disabled to reduce the build time
+export XDK_CONNECTIVITY_BLE=0
+export XDK_CONNECTIVITY_HTTPRESTCLIENT=0
+export XDK_CONNECTIVITY_LORA=0
+export XDK_CONNECTIVITY_LWM2M=1
+export XDK_CONNECTIVITY_MQTT=1
+export XDK_CONNECTIVITY_UDP=0
+export XDK_CONNECTIVITY_WLAN=1
+
+export XDK_SENSOR_SENSOR=1
+export XDK_SENSOR_VIRTUALSENSOR=1
+export XDK_SENSOR_EXTERNALSENSOR=1
+
+export XDK_UTILITY_STORAGE=1
+export XDK_UTILITY_SNTP=0
+export XDK_UTILITY_SERVALPAL=1
+#Enabled feature macros for common code
+export XDK_CONNECTIVITY_LED=1
+export XDK_SENSOR_BUTTON=1
+#end of settings related to optimized build
+
 #List all the application header file under variable BCDS_XDK_INCLUDES 
-export BCDS_XDK_INCLUDES = \
+#export BCDS_XDK_INCLUDES = \
 	
 #List all the application source file under variable BCDS_XDK_APP_SOURCE_FILES in a similar pattern as below
 export BCDS_XDK_APP_SOURCE_FILES = \
